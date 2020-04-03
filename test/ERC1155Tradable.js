@@ -5,7 +5,7 @@ const ERC1155Tradable = artifacts.require("../contracts/ERC1155Tradable.sol");
 const BN = web3.utils.BN;
 
 /* Utility functions */
-const expectThrow = require('./helpers/expectThrow.js');
+const truffleAssert = require('truffle-assertions');
 
 contract("ERC1155Tradable - ERC 1155", (accounts) => {
 	var instance,
@@ -58,7 +58,7 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
 		);
 
 		it('Non-owner can not create tokens',
-			() => expectThrow(instance.create(userA, 0, "", "0x0", {from: userA}))
+			() => truffleAssert.fails(instance.create(userA, 0, "", "0x0", {from: userA}))
 		);
 
 		it('Owner can change token creator to another address',
@@ -70,13 +70,13 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
 		);
 
 		it('Can not set creator to 0x0 address',
-			() => expectThrow(instance.setCreator(zeroAddress, [initialTokenId], {from: creator}))
+			() => truffleAssert.fails(instance.setCreator(zeroAddress, [initialTokenId], {from: creator}))
 		);
 
 		it('Non-creator can not set creator',
 			// Check both a user and the owner of the contract
-			() => expectThrow(instance.setCreator(userA, [initialTokenId], {from: userA}))
-			.then(expectThrow(instance.setCreator(owner, [initialTokenId], {from: owner})))
+			() => truffleAssert.fails(instance.setCreator(userA, [initialTokenId], {from: userA}))
+			.then(truffleAssert.fails(instance.setCreator(owner, [initialTokenId], {from: owner})))
 		);
 
 		it('Creator can change token creator to another address',
@@ -106,7 +106,7 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
 		);
 
 		it('Minting should not overflow',
-			() => expectThrow(
+			() => truffleAssert.fails(
 				instance.mint(userB, initialTokenId, overflowNumber, "0x0", {from: creator}),
 				'OVERFLOW'
 			)
@@ -126,7 +126,7 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
 		);
 
 		it('Batch minting should not overflow',
-			() => expectThrow(
+			() => truffleAssert.fails(
 				instance.mint(userB, initialTokenId, overflowNumber, "0x0", {from: creator}),
 				'OVERFLOW'
 			)

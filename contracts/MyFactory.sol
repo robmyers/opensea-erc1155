@@ -67,7 +67,7 @@ contract MyFactory is IFactory, Ownable, ReentrancyGuard {
   }
 
   function mint(uint256 _optionId, address _toAddress, uint256 _amount, bytes calldata _data) external nonReentrant() {
-    return _mint(Option(_optionId), _toAddress, _amount, _data);
+      _mint(Option(_optionId), _toAddress, _amount, _data);
   }
 
   function uri(uint256 _optionId) external view returns (string memory) {
@@ -117,7 +117,6 @@ contract MyFactory is IFactory, Ownable, ReentrancyGuard {
       // Haven't minted yet
       return SUPPLY_PER_TOKEN_ID;
     }
-
     MyCollectible nftContract = MyCollectible(nftAddress);
     uint256 currentSupply = nftContract.totalSupply(id);
     return SUPPLY_PER_TOKEN_ID.sub(currentSupply);
