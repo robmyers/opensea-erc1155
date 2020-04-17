@@ -3,15 +3,17 @@ pragma solidity ^0.5.11;
 import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
 import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "./MyCollectible.sol";
-import "./MyFactory.sol";
+import "./CreatureAccessory.sol";
+import "./CreatureAccessoryFactory.sol";
 import "./ILootBox.sol";
 
 /**
- * @title MyLootBox
- * MyLootBox - a randomized and openable lootbox of MyCollectibles
+ * @title CreatureAccessoryLootBox
+ * CreatureAccessoryLootBox - a randomized and openable lootbox of Creature
+ * Accessories.
  */
-contract MyLootBox is ILootBox, Ownable, Pausable, ReentrancyGuard, MyFactory {
+contract CreatureAccessoryLootBox is
+ILootBox, Ownable, Pausable, ReentrancyGuard, CreatureAccessoryFactory {
   using SafeMath for uint256;
 
   // Event for logging lootbox opens
@@ -24,10 +26,9 @@ contract MyLootBox is ILootBox, Ownable, Pausable, ReentrancyGuard, MyFactory {
     Rare,
     Epic,
     Legendary,
-    Divine,
-    Hidden
+    Divine
   }
-  uint256 constant NUM_CLASSES = 6;
+  uint256 constant NUM_CLASSES = 5;
 
   // NOTE: Price of the lootbox is set via sell orders on OpenSea
   struct OptionSettings {
@@ -59,7 +60,7 @@ contract MyLootBox is ILootBox, Ownable, Pausable, ReentrancyGuard, MyFactory {
   constructor(
     address _proxyRegistryAddress,
     address _nftAddress
-  ) MyFactory(
+  ) CreatureAccessoryFactory(
     _proxyRegistryAddress,
     _nftAddress
   ) public {
@@ -193,7 +194,8 @@ contract MyLootBox is ILootBox, Ownable, Pausable, ReentrancyGuard, MyFactory {
 
   /**
    * @dev Main minting logic for lootboxes
-   * This is called via safeTransferFrom when MyLootBox extends MyFactory.
+   * This is called via safeTransferFrom when CreatureAccessoryLootBox extends
+   * CreatureAccessoryFactory.
    * NOTE: prices and fees are determined by the sell order on OpenSea.
    */
   function _mint(
@@ -206,8 +208,8 @@ contract MyLootBox is ILootBox, Ownable, Pausable, ReentrancyGuard, MyFactory {
     uint256 optionId = uint256(_option);
     OptionSettings memory settings = optionToSettings[optionId];
 
-    require(settings.maxQuantityPerOpen > 0, "MyLootBox#_mint: OPTION_NOT_ALLOWED");
-    require(_canMint(msg.sender, _option, _amount), "MyLootBox#_mint: CANNOT_MINT");
+    require(settings.quantityPerOpen > 0, "CreatureAccessoryLootBox#_mint: OPTION_NOT_ALLOWED");
+    require(_canMint(msg.sender, _option, _amount), "CreatureAccessoryLootBox#_mint: CANNOT_MINT");
 
     uint256 totalMinted = 0;
 
@@ -250,11 +252,11 @@ contract MyLootBox is ILootBox, Ownable, Pausable, ReentrancyGuard, MyFactory {
   /////
 
   function name() external view returns (string memory) {
-    return "My Loot Box";
+    return "OpenSea Creature Accessory Loot Box";
   }
 
   function symbol() external view returns (string memory) {
-    return "MYLOOT";
+    return "OSCALOOT";
   }
 
   function uri(uint256 _optionId) external view returns (string memory) {
@@ -276,7 +278,7 @@ contract MyLootBox is ILootBox, Ownable, Pausable, ReentrancyGuard, MyFactory {
     uint256 _amount
   ) internal returns (uint256) {
     uint256 classId = uint256(_class);
-    MyCollectible nftContract = MyCollectible(nftAddress);
+    CreatureAccessory nftContract = CreatureAccessory(nftAddress);
     uint256 tokenId = _pickRandomAvailableTokenIdForClass(_class, _amount);
     if (classIsPreminted[classId]) {
       nftContract.safeTransferFrom(
@@ -322,7 +324,7 @@ contract MyLootBox is ILootBox, Ownable, Pausable, ReentrancyGuard, MyFactory {
       // Unminted
       require(
         !classIsPreminted[classId],
-        "MyLootBox#_pickRandomAvailableTokenIdForClass: NO_TOKEN_ON_PREMINTED_CLASS"
+        "CreatureAccessoryLootBox#_pickRandomAvailableTokenIdForClass: NO_TOKEN_ON_PREMINTED_CLASS"
       );
       return 0;
     }
@@ -331,14 +333,14 @@ contract MyLootBox is ILootBox, Ownable, Pausable, ReentrancyGuard, MyFactory {
 
     if (classIsPreminted[classId]) {
       // Make sure owner() owns enough
-      MyCollectible nftContract = MyCollectible(nftAddress);
+      CreatureAccessory nftContract = CreatureAccessory(nftAddress);
       for (uint256 i = randIndex; i < randIndex + tokenIds.length; i++) {
         uint256 tokenId = tokenIds[i % tokenIds.length];
         if (nftContract.balanceOf(owner(), tokenId) >= _minAmount) {
           return tokenId;
         }
       }
-      revert("MyLootBox#_pickRandomAvailableTokenIdForClass: NOT_ENOUGH_TOKENS_FOR_CLASS");
+      revert("CreatureAccessoryLootBox#_pickRandomAvailableTokenIdForClass: NOT_ENOUGH_TOKENS_FOR_CLASS");
     } else {
       return tokenIds[randIndex];
     }
@@ -358,7 +360,7 @@ contract MyLootBox is ILootBox, Ownable, Pausable, ReentrancyGuard, MyFactory {
    * @dev emit a Warning if we're not approved to transfer nftAddress
    */
   function _checkTokenApproval() internal {
-    MyCollectible nftContract = MyCollectible(nftAddress);
+    CreatureAccessory nftContract = CreatureAccessory(nftAddress);
     if (!nftContract.isApprovedForAll(owner(), address(this))) {
       emit Warning("Lootbox contract is not approved for trading collectible by:", owner());
     }
