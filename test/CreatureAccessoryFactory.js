@@ -8,8 +8,8 @@ const truffleAssert = require('truffle-assertions');
 const MockProxyRegistry = artifacts.require(
   "../contracts/MockProxyRegistry.sol"
 );
-const MyFactory = artifacts.require("../contracts/MyFactory.sol");
-const MyCollectible = artifacts.require("../contracts/MyCollectible.sol");
+const CreatureAccessoryFactory = artifacts.require("../contracts/CreatureAccessoryFactory.sol");
+const CreatureAccessory = artifacts.require("../contracts/CreatureAccessory.sol");
 const TestForReentrancyAttack = artifacts.require(
   "../contracts/TestForReentrancyAttack.sol"
 );
@@ -34,7 +34,7 @@ const toBN = web3.utils.toBN;
      transferFrom() uses _create, which is tested in create(), so this is fine.
 */
 
-contract("MyFactory", (accounts) => {
+contract("CreatureAccessoryFactory", (accounts) => {
   const URI_BASE = 'https://opensea-creatures-api.herokuapp.com/api/';
   const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
   const MAX_UINT256 = '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF';
@@ -63,8 +63,8 @@ contract("MyFactory", (accounts) => {
   before(async () => {
     proxy = await MockProxyRegistry.new();
     await proxy.setProxy(owner, proxyForOwner);
-    myCollectible = await MyCollectible.new(proxy.address);
-    myFactory = await MyFactory.new(
+    myCollectible = await CreatureAccessory.new(proxy.address);
+    myFactory = await CreatureAccessoryFactory.new(
       proxy.address,
       myCollectible.address);
     await myCollectible.transferOwnership(myFactory.address);
@@ -84,13 +84,16 @@ contract("MyFactory", (accounts) => {
 
   describe('#name()', () => {
     it('should return the correct name', async () => {
-      assert.equal(await myFactory.name(), 'My Collectible Pre-Sale');
+      assert.equal(
+        await myFactory.name(),
+        'OpenSea Creature Accessory Pre-Sale'
+      );
     });
   });
 
   describe('#symbol()', () => {
     it('should return the correct symbol', async () => {
-      assert.equal(await myFactory.symbol(), 'MCP');
+      assert.equal(await myFactory.symbol(), 'OSCAP');
     });
   });
 
@@ -120,7 +123,7 @@ contract("MyFactory", (accounts) => {
       await truffleAssert.fails(
         myFactory.mint(PREMIUM, userA, 1000, "0x0", { from: userA }),
         truffleAssert.ErrorType.revert,
-        'MyFactory#_mint: CANNOT_MINT_MORE'
+        'CreatureAccessoryFactory#_mint: CANNOT_MINT_MORE'
       );
     });
 
@@ -294,7 +297,7 @@ contract("MyFactory", (accounts) => {
           { from: userB }
         ),
         truffleAssert.ErrorType.revert,
-        'MyFactory#_mint: CANNOT_MINT_MORE'
+        'CreatureAccessoryFactory#_mint: CANNOT_MINT_MORE'
       );
     });
   });
@@ -339,7 +342,7 @@ contract("MyFactory", (accounts) => {
    * environment, due to the OwnableDelegateProxy. To get around
    * this, in order to test this function below, you'll need to:
    *
-   * 1. go to MyFactory.sol, and
+   * 1. go to CreatureAccessoryFactory.sol, and
    * 2. modify _isOwnerOrProxy
    *
    * --> Modification is:
@@ -357,7 +360,7 @@ contract("MyFactory", (accounts) => {
        });
 
     // With unmodified code, this fails with:
-    //   MyFactory#_mint: CANNOT_MINT_MORE
+    //   CreatureAccessoryFactory#_mint: CANNOT_MINT_MORE
     // which is the correct behavior (no reentrancy) for the wrong reason
     // (the attacker is not the owner or proxy).
 

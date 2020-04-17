@@ -2,7 +2,7 @@ pragma solidity ^0.5.11;
 
 import "multi-token-standard/contracts/interfaces/IERC1155TokenReceiver.sol";
 
-import "../MyFactory.sol";
+import "../CreatureAccessoryFactory.sol";
 
 
 contract TestForReentrancyAttack is IERC1155TokenReceiver {
@@ -28,13 +28,14 @@ contract TestForReentrancyAttack is IERC1155TokenReceiver {
     /*function attack(uint256 _totalToMint) external {
         require(_totalToMint >= 2, "_totalToMint must be >= 2");
         totalToMint = _totalToMint;
-        MyFactory(factoryAddress).mint(1, address(this), 1, "");
+        CreatureAccessoryFactory(factoryAddress).mint(1, address(this), 1, "");
         }*/
 
-    // We attempt a reentrancy attack here by recursively calling the MyFactory
-    // that created the MyCollectible ERC1155 token that we are receiving here.
-    // We expect this to fail if the MyFactory.mint() function defends against
-    // reentrancy.
+    // We attempt a reentrancy attack here by recursively calling the
+    // CreatureAccessoryFactory that created the MyCollectible ERC1155 token
+    // that we are receiving here.
+    // We expect this to fail if the CreatureAccessoryFactory.mint() function
+    // defends against reentrancy.
 
     function onERC1155Received(
         address /*_operator*/,
@@ -50,7 +51,8 @@ contract TestForReentrancyAttack is IERC1155TokenReceiver {
         if(balance < totalToMint)
         {
             // 1 is the factory lootbox option, not the token id
-            MyFactory(factoryAddress).mint(1, address(this), 1, "");
+            CreatureAccessoryFactory(factoryAddress)
+                .mint(1, address(this), 1, "");
         }
         return ERC1155_RECEIVED_SIG;
     }

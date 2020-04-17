@@ -3,11 +3,15 @@ pragma solidity ^0.5.11;
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
 import "./IFactory.sol";
-import "./MyCollectible.sol";
+import "./CreatureAccessory.sol";
 import "./Strings.sol";
 
-// WIP
-contract MyFactory is IFactory, Ownable, ReentrancyGuard {
+/**
+ * @title CreatureAccessoryFactory
+ * CreatureAccessory - a factory contract for Creature Accessory semi-fungible
+ * tokens.
+ */
+contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
   using Strings for string;
   using SafeMath for uint256;
 
@@ -23,7 +27,7 @@ contract MyFactory is IFactory, Ownable, ReentrancyGuard {
   uint256 constant SUPPLY_PER_TOKEN_ID = UINT256_MAX;
 
   /**
-   * Three different options for minting MyCollectibles (basic, premium, and gold).
+   * Three different options for minting CreatureAccessorys (basic, premium, and gold).
    */
   enum Option {
     Basic,
@@ -43,11 +47,11 @@ contract MyFactory is IFactory, Ownable, ReentrancyGuard {
   /////
 
   function name() external view returns (string memory) {
-    return "My Collectible Pre-Sale";
+    return "OpenSea Creature Accessory Pre-Sale";
   }
 
   function symbol() external view returns (string memory) {
-    return "MCP";
+    return "OSCAP";
   }
 
   function supportsFactoryInterface() external view returns (bool) {
@@ -87,9 +91,9 @@ contract MyFactory is IFactory, Ownable, ReentrancyGuard {
     uint256 _amount,
     bytes memory _data
   ) internal {
-    require(_canMint(msg.sender, _option, _amount), "MyFactory#_mint: CANNOT_MINT_MORE");
+    require(_canMint(msg.sender, _option, _amount), "CreatureAccessoryFactory#_mint: CANNOT_MINT_MORE");
     uint256 optionId = uint256(_option);
-    MyCollectible nftContract = MyCollectible(nftAddress);
+    CreatureAccessory nftContract = CreatureAccessory(nftAddress);
     uint256 id = optionToTokenID[optionId];
     if (id == 0) {
       id = nftContract.create(_toAddress, _amount, "", _data);
@@ -118,7 +122,7 @@ contract MyFactory is IFactory, Ownable, ReentrancyGuard {
       return SUPPLY_PER_TOKEN_ID;
     }
 
-    MyCollectible nftContract = MyCollectible(nftAddress);
+    CreatureAccessory nftContract = CreatureAccessory(nftAddress);
     uint256 currentSupply = nftContract.totalSupply(id);
     return SUPPLY_PER_TOKEN_ID.sub(currentSupply);
   }
