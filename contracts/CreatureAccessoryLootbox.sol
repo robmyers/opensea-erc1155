@@ -26,9 +26,10 @@ ILootBox, Ownable, Pausable, ReentrancyGuard, CreatureAccessoryFactory {
     Rare,
     Epic,
     Legendary,
-    Divine
+    Divine,
+    Hidden
   }
-  uint256 constant NUM_CLASSES = 5;
+  uint256 constant NUM_CLASSES = 6;
 
   // NOTE: Price of the lootbox is set via sell orders on OpenSea
   struct OptionSettings {
