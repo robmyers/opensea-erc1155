@@ -17,7 +17,7 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
 
   address public proxyRegistryAddress;
   address public nftAddress;
-  string constant internal baseMetadataURI = "https://opensea-creatures-api.herokuapp.com/api/";
+  string constant internal baseMetadataURI = "https://creatures-api.opensea.io/api/";
   uint256 constant UINT256_MAX = ~uint256(0);
 
   /**
