@@ -2,7 +2,7 @@ pragma solidity ^0.5.12;
 
 /**
  * This is a generic lootbox contract that can be used to mint or sendrandom tokens. The configuration
- * of the contract is detailed in MyLootBox.sol
+ * of the contract is detailed in CreatureAccessoryLootBox.sol
  */
 interface ILootBox {
 

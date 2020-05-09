@@ -32,7 +32,7 @@ contract TestForReentrancyAttack is IERC1155TokenReceiver {
         }*/
 
     // We attempt a reentrancy attack here by recursively calling the
-    // CreatureAccessoryFactory that created the MyCollectible ERC1155 token
+    // CreatureAccessoryFactory that created the CreatureAccessory ERC1155 token
     // that we are receiving here.
     // We expect this to fail if the CreatureAccessoryFactory.mint() function
     // defends against reentrancy.

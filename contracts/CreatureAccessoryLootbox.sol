@@ -209,7 +209,7 @@ ILootBox, Ownable, Pausable, ReentrancyGuard, CreatureAccessoryFactory {
     uint256 optionId = uint256(_option);
     OptionSettings memory settings = optionToSettings[optionId];
 
-    require(settings.quantityPerOpen > 0, "CreatureAccessoryLootBox#_mint: OPTION_NOT_ALLOWED");
+    require(settings.maxQuantityPerOpen > 0, "CreatureAccessoryLootBox#_mint: OPTION_NOT_ALLOWED");
     require(_canMint(msg.sender, _option, _amount), "CreatureAccessoryLootBox#_mint: CANNOT_MINT");
 
     uint256 totalMinted = 0;

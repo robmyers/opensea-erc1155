@@ -1,15 +1,17 @@
 /* Contracts in this test */
 
-const MyCollectible = artifacts.require("../contracts/MyCollectible.sol");
+const CreatureAccessory = artifacts.require(
+  "../contracts/CreatureAccessory.sol"
+);
 
 
-contract("MyCollectible", (accounts) => {
+contract("CreatureAccessory", (accounts) => {
   const URI_BASE = 'https://creatures-api.opensea.io';
   const CONTRACT_URI = `${URI_BASE}/contract/opensea-erc1155`;
-  let myCollectible;
+  let creatureAccessory;
 
   before(async () => {
-    myCollectible = await MyCollectible.deployed();
+    creatureAccessory = await CreatureAccessory.deployed();
   });
 
   // This is all we test for now
@@ -18,7 +20,7 @@ contract("MyCollectible", (accounts) => {
 
   describe('#constructor()', () => {
     it('should set the contractURI to the supplied value', async () => {
-      assert.equal(await myCollectible.contractURI(), CONTRACT_URI);
+      assert.equal(await creatureAccessory.contractURI(), CONTRACT_URI);
     });
   });
 });

@@ -1,3 +1,3 @@
-./node_modules/.bin/truffle-flattener contracts/MyCollectible.sol > flattened/MyCollectible.sol
-./node_modules/.bin/truffle-flattener contracts/MyFactory.sol > flattened/MyFactory.sol
-./node_modules/.bin/truffle-flattener contracts/MyLootBox.sol > flattened/MyLootBox.sol
+./node_modules/.bin/truffle-flattener contracts/CreatureAccessory.sol > flattened/CreatureAccessory.sol
+./node_modules/.bin/truffle-flattener contracts/CreatureAccessoryFactory.sol > flattened/CreatureAccessoryFactory.sol
+./node_modules/.bin/truffle-flattener contracts/CreatureAccessoryLootBox.sol > flattened/CreatureAccessoryLootBox.sol

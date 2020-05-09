@@ -9,8 +9,10 @@ const vals = require('../lib/testValuesCommon.js');
 const MockProxyRegistry = artifacts.require(
   "../contracts/MockProxyRegistry.sol"
 );
-const MyLootBox = artifacts.require("../contracts/MyLootBox.sol");
-const MyCollectible = artifacts.require("../contracts/MyCollectible.sol");
+const CreatureAccessoryLootBox = artifacts.require(
+  "../contracts/CreatureAccessoryLootBox.sol"
+);
+const CreatureAccessory = artifacts.require("../contracts/CreatureAccessory.sol");
 
 
 /* Useful aliases */
@@ -42,9 +44,9 @@ const TRANSFER_SINGLE_SIG = web3.eth.abi.encodeEventSignature({
 // match the expected ones.
 
 const checkOption = async (
-  myLootBox, index, maxQuantityPerOpen, hasGuaranteedClasses
+  lootBox, index, maxQuantityPerOpen, hasGuaranteedClasses
 ) => {
-  const option = await myLootBox.optionToSettings(index);
+  const option = await lootBox.optionToSettings(index);
   assert.isOk(option.maxQuantityPerOpen.eq(toBN(maxQuantityPerOpen)));
   assert.equal(option.hasGuaranteedClasses, hasGuaranteedClasses);
 };
@@ -106,7 +108,7 @@ const compareTokenTotals = (totals, spec, option) => {
 
 /* Tests */
 
-contract("MyLootBox", (accounts) => {
+contract("CreatureAccessoryLootBox", (accounts) => {
   // As set in (or inferred from) the contract
   const BASIC = toBN(0);
   const PREMIUM = toBN(1);
@@ -126,33 +128,33 @@ contract("MyLootBox", (accounts) => {
   const userB = accounts[2];
   const proxyForOwner = accounts[8];
 
-  let myLootBox;
-  let myCollectible;
+  let lootBox;
+  let creatureAccessory;
   let proxy;
 
   before(async () => {
     proxy = await MockProxyRegistry.new();
     await proxy.setProxy(owner, proxyForOwner);
-    myCollectible = await MyCollectible.new(proxy.address);
-    myLootBox = await MyLootBox.new(
+    creatureAccessory = await CreatureAccessory.new(proxy.address);
+    lootBox = await CreatureAccessoryLootBox.new(
       proxy.address,
-      myCollectible.address
+      creatureAccessory.address
     );
-    await myCollectible.transferOwnership(myLootBox.address);
+    await creatureAccessory.transferOwnership(lootBox.address);
   });
 
   // This also tests the proxyRegistryAddress and nftAddress accessors.
 
   describe('#constructor()', () => {
     it('should set proxyRegistryAddress to the supplied value', async () => {
-      assert.equal(await myLootBox.proxyRegistryAddress(), proxy.address);
-      assert.equal(await myLootBox.nftAddress(), myCollectible.address);
+      assert.equal(await lootBox.proxyRegistryAddress(), proxy.address);
+      assert.equal(await lootBox.nftAddress(), creatureAccessory.address);
     });
 
     it('should set options to values in constructor', async () => {
-      await checkOption(myLootBox, BASIC, 3, false);
-      await checkOption(myLootBox, PREMIUM, 5, true);
-      await checkOption(myLootBox, GOLD, 7, true);
+      await checkOption(lootBox, BASIC, 3, false);
+      await checkOption(lootBox, PREMIUM, 5, true);
+      await checkOption(lootBox, GOLD, 7, true);
     });
   });
 
@@ -162,7 +164,7 @@ contract("MyLootBox", (accounts) => {
     it('should work for owner()', async () => {
       const option = BASIC;
       const amount = toBN(1);
-      const receipt = await myLootBox.safeTransferFrom(
+      const receipt = await lootBox.safeTransferFrom(
         vals.ADDRESS_ZERO,
         userB,
         option,
@@ -187,7 +189,7 @@ contract("MyLootBox", (accounts) => {
     it('should work for proxy', async () => {
       const option = BASIC;
       const amount = toBN(1);
-      const receipt = await myLootBox.safeTransferFrom(
+      const receipt = await lootBox.safeTransferFrom(
           vals.ADDRESS_ZERO,
           userB,
           option,
@@ -212,7 +214,7 @@ contract("MyLootBox", (accounts) => {
     it('should not be callable by non-owner() and non-proxy', async () => {
       const amount = toBN(1);
       await truffleAssert.fails(
-        myLootBox.safeTransferFrom(
+        lootBox.safeTransferFrom(
           vals.ADDRESS_ZERO,
           userB,
           PREMIUM,
@@ -221,14 +223,14 @@ contract("MyLootBox", (accounts) => {
           { from: userB }
         ),
         truffleAssert.ErrorType.REVERT,
-        'MyLootBox#_mint: CANNOT_MINT'
+        'CreatureAccessoryLootBox#_mint: CANNOT_MINT'
       );
     });
 
     it('should not work for invalid option', async () => {
       const amount = toBN(1);
       await truffleAssert.fails(
-        myLootBox.safeTransferFrom(
+        lootBox.safeTransferFrom(
           vals.ADDRESS_ZERO,
           userB,
           NO_SUCH_OPTION,
@@ -245,7 +247,7 @@ contract("MyLootBox", (accounts) => {
       for (let i = 0; i < NUM_OPTIONS; i++) {
         const option = OPTIONS[i];
         const amount = toBN(1);
-        const receipt = await myLootBox.safeTransferFrom(
+        const receipt = await lootBox.safeTransferFrom(
           vals.ADDRESS_ZERO,
           userB,
           option,
